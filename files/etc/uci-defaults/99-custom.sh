@@ -134,6 +134,53 @@ uci delete ttyd.@ttyd[0].interface
 uci set dropbear.@dropbear[0].Interface=''
 uci commit
 
+# Detect the Qualcomm NFA765/WCN6855 PCI device (vendor 17cb, device 1103).
+nfa765_detected='no'
+for pci_device in /sys/bus/pci/devices/*; do
+    [ -f "$pci_device/vendor" ] || continue
+    if [ "$(cat "$pci_device/vendor")" = '0x17cb' ] && [ "$(cat "$pci_device/device")" = '0x1103' ]; then
+        nfa765_detected='yes'
+        break
+    fi
+done
+
+# Generate first-boot wireless defaults without overwriting an existing setup.
+wireless_config_created='no'
+if [ "$nfa765_detected" = 'yes' ] && command -v wifi >/dev/null 2>&1 && [ ! -s /etc/config/wireless ]; then
+    wifi config
+    if [ -s /etc/config/wireless ]; then
+        wireless_config_created='yes'
+        echo "Generated wireless configuration for detected radio devices." >>$LOGFILE
+    else
+        echo "No wireless radio was available while generating configuration." >>$LOGFILE
+    fi
+fi
+
+# Configure the first detected radio as an open 2.4 GHz setup access point.
+if [ "$wireless_config_created" = 'yes' ]; then
+    wireless_radio=$(uci -q show wireless | sed -n 's/^wireless\.\([^.=]*\)=wifi-device$/\1/p' | head -n1)
+    wireless_iface=$(uci -q show wireless | sed -n 's/^wireless\.\([^.=]*\)=wifi-iface$/\1/p' | head -n1)
+
+    if [ -n "$wireless_radio" ] && [ -n "$wireless_iface" ]; then
+        uci set "wireless.$wireless_radio.disabled=0"
+        uci set "wireless.$wireless_radio.band=2g"
+        uci set "wireless.$wireless_radio.channel=1"
+        uci set "wireless.$wireless_radio.htmode=HE20"
+        uci set "wireless.$wireless_radio.country=CN"
+        uci set "wireless.$wireless_iface.device=$wireless_radio"
+        uci set "wireless.$wireless_iface.network=lan"
+        uci set "wireless.$wireless_iface.mode=ap"
+        uci set "wireless.$wireless_iface.ssid=imm_wlan"
+        uci set "wireless.$wireless_iface.encryption=none"
+        uci -q delete "wireless.$wireless_iface.key"
+        uci commit wireless
+        wifi reload >>$LOGFILE 2>&1
+        echo "Enabled open setup Wi-Fi network: imm_wlan" >>$LOGFILE
+    else
+        echo "Unable to locate generated wireless radio and interface sections." >>$LOGFILE
+    fi
+fi
+
 # 设置编译作者信息
 FILE_PATH="/etc/openwrt_release"
 NEW_DESCRIPTION="Packaged by wukongdaily"
