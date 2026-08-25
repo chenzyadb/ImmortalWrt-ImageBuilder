@@ -57,6 +57,10 @@ PACKAGES="$PACKAGES luci-i18n-package-manager-zh-cn"
 PACKAGES="$PACKAGES luci-i18n-ttyd-zh-cn"
 PACKAGES="$PACKAGES openssh-sftp-server"
 
+# Qualcomm NFA765 (WCN6855) PCIe wireless driver and device firmware.
+NFA765_PACKAGES="kmod-ath11k kmod-ath11k-pci ath11k-firmware-wcn6855"
+PACKAGES="$PACKAGES $NFA765_PACKAGES"
+
 # 文件管理器
 PACKAGES="$PACKAGES luci-i18n-filemanager-zh-cn"
 # ======== shell/custom-packages.sh =======
@@ -115,5 +119,21 @@ if [ $? -ne 0 ]; then
     echo "$(date '+%Y-%m-%d %H:%M:%S') - Error: Build failed!"
     exit 1
 fi
+
+# Verify that ImageBuilder actually included every NFA765 package in the image.
+MANIFEST=$(find bin/targets/x86/64 -maxdepth 1 -type f -name '*.manifest' -print -quit)
+if [ -z "$MANIFEST" ]; then
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - Error: Image manifest not found!"
+    exit 1
+fi
+
+for package in $NFA765_PACKAGES; do
+    if ! grep -Eq "^${package}[[:space:]]" "$MANIFEST"; then
+        echo "$(date '+%Y-%m-%d %H:%M:%S') - Error: Required NFA765 package missing: $package"
+        exit 1
+    fi
+done
+
+echo "Verified Qualcomm NFA765 packages in $MANIFEST"
 
 echo "$(date '+%Y-%m-%d %H:%M:%S') - Build completed successfully."
