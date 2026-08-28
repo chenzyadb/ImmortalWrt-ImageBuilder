@@ -1,6 +1,7 @@
 #!/bin/bash
 source shell/custom-packages.sh
 source shell/switch_repository.sh
+source shell/nikki-packages.sh
 # 该文件实际为imagebuilder容器内的build.sh
 
 #echo "✅ 你选择了第三方软件包：$CUSTOM_PACKAGES"
@@ -21,6 +22,12 @@ ls -lah /home/build/immortalwrt/packages/
 sed -i '1i\
 arch aarch64_generic 10\n\
 arch aarch64_cortex-a53 15' repositories.conf
+
+if [ -x /usr/bin/apk ]; then
+    prepare_nikki_packages SNAPSHOT apk
+else
+    prepare_nikki_packages openwrt-24.10 ipk
+fi
 
 
 
@@ -59,6 +66,7 @@ PACKAGES="$PACKAGES luci-i18n-ttyd-zh-cn"
 PACKAGES="$PACKAGES openssh-sftp-server"
 # 文件管理器
 PACKAGES="$PACKAGES luci-i18n-filemanager-zh-cn"
+PACKAGES="$PACKAGES $NIKKI_PACKAGES"
 
 
 # 第三方软件包 合并

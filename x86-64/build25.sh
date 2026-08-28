@@ -2,6 +2,7 @@
 # Log file for debugging
 # 目前支持少部分第三方软件apk 通过打开shell/apk-custom-packages.sh的注释来集成
 source shell/apk-custom-packages.sh
+source shell/nikki-packages.sh
 echo "第三方apk软件包: $CUSTOM_PACKAGES"
 LOGFILE="/tmp/uci-defaults-log.txt"
 echo "Starting 99-custom.sh at $(date)" >> $LOGFILE
@@ -38,6 +39,7 @@ else
   sh shell/apk-prepare-packages.sh
   ls -lah /home/build/immortalwrt/packages/
 fi
+prepare_nikki_packages openwrt-25.12 apk
 
 
 # 输出调试信息
@@ -65,6 +67,7 @@ PACKAGES="$PACKAGES $NFA765_PACKAGES $PCI_TOOLS_PACKAGES"
 
 # 文件管理器
 PACKAGES="$PACKAGES luci-i18n-filemanager-zh-cn"
+PACKAGES="$PACKAGES $NIKKI_PACKAGES"
 # ======== shell/apk-custom-packages.sh =======
 # 合并imm仓库以外的第三方插件 暂时注释
 PACKAGES="$PACKAGES $CUSTOM_PACKAGES"

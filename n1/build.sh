@@ -2,6 +2,7 @@
 # Log file for debugging
 source shell/custom-packages.sh
 source shell/switch_repository.sh
+source shell/nikki-packages.sh
 echo "第三方软件包: $CUSTOM_PACKAGES"
 LOGFILE="/tmp/uci-defaults-log.txt"
 echo "Starting 99-custom.sh at $(date)" >> $LOGFILE
@@ -47,6 +48,8 @@ ls -lh /home/build/immortalwrt/extra-packages/*.run
 # 解压并拷贝ipk到packages目录
 sh shell/prepare-packages.sh
 ls -lah /home/build/immortalwrt/packages/
+prepare_nikki_packages openwrt-24.10 ipk
+PACKAGES="$PACKAGES $NIKKI_PACKAGES"
 # 添加架构优先级信息
 sed -i '1i\
 arch aarch64_generic 10\n\

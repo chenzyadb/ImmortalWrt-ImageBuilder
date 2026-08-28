@@ -2,6 +2,7 @@
 # Log file for debugging
 source shell/custom-packages.sh
 source shell/switch_repository.sh
+source shell/nikki-packages.sh
 echo "第三方软件包: $CUSTOM_PACKAGES"
 LOGFILE="/tmp/uci-defaults-log.txt"
 echo "Starting 99-custom.sh at $(date)" >> $LOGFILE
@@ -45,6 +46,8 @@ else
   arch aarch64_cortex-a53 15' repositories.conf
 fi
 
+prepare_nikki_packages openwrt-24.10 ipk
+
 # 输出调试信息
 echo "$(date '+%Y-%m-%d %H:%M:%S') - 开始构建QEMU-arm64固件..."
 
@@ -65,6 +68,7 @@ PACKAGES="$PACKAGES openssh-sftp-server"
 PACKAGES="$PACKAGES luci-i18n-dockerman-zh-cn"
 # 文件管理器
 PACKAGES="$PACKAGES luci-i18n-filemanager-zh-cn"
+PACKAGES="$PACKAGES $NIKKI_PACKAGES"
 # ======== shell/custom-packages.sh =======
 # 合并imm仓库以外的第三方插件
 PACKAGES="$PACKAGES $CUSTOM_PACKAGES"

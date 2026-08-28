@@ -1,5 +1,6 @@
 #!/bin/bash
 source shell/apk-custom-packages.sh
+source shell/nikki-packages.sh
 #echo "✅ 你选择了第三方软件包：$CUSTOM_PACKAGES"
 if [ -z "$CUSTOM_PACKAGES" ]; then
   echo "⚪️ 未选择 任何第三方软件包"
@@ -18,6 +19,7 @@ else
   sh shell/apk-prepare-packages.sh
   ls -lah /home/build/immortalwrt/packages/
 fi
+prepare_nikki_packages openwrt-25.12 apk
 
 
 
@@ -55,6 +57,7 @@ PACKAGES="$PACKAGES luci-i18n-ttyd-zh-cn"
 PACKAGES="$PACKAGES openssh-sftp-server"
 # 文件管理器
 PACKAGES="$PACKAGES luci-i18n-filemanager-zh-cn"
+PACKAGES="$PACKAGES $NIKKI_PACKAGES"
 
 
 # 第三方软件包 合并

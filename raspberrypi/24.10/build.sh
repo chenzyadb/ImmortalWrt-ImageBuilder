@@ -1,6 +1,7 @@
 #!/bin/bash
 source shell/custom-packages.sh
 source shell/switch_repository.sh
+source shell/nikki-packages.sh
 echo "第三方软件包: $CUSTOM_PACKAGES"
 # yml 传入的路由器型号 PROFILE
 echo "Building for profile: $PROFILE"
@@ -57,6 +58,7 @@ sed -i -E "s|(src/gz immortalwrt_telephony .*aarch64_cortex-a[0-9]+)/telephony|s
 echo "✅ repositories.conf updated for $PROFILE with generic fallback and LUCI_VERSION=$LUCI_VERSION"
 echo "Current repositories.conf content:"
 cat repositories.conf
+prepare_nikki_packages openwrt-24.10 ipk
 # 输出调试信息
 echo "$(date '+%Y-%m-%d %H:%M:%S') - Starting build process..."
 
@@ -76,6 +78,7 @@ PACKAGES="$PACKAGES luci-i18n-diskman-zh-cn"
 PACKAGES="$PACKAGES luci-i18n-package-manager-zh-cn"
 PACKAGES="$PACKAGES luci-i18n-ttyd-zh-cn"
 PACKAGES="$PACKAGES openssh-sftp-server"
+PACKAGES="$PACKAGES $NIKKI_PACKAGES"
 # ======== shell/custom-packages.sh =======
 # 合并imm仓库以外的第三方插件
 PACKAGES="$PACKAGES $CUSTOM_PACKAGES"
